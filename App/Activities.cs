@@ -7,26 +7,25 @@ using Twilio.Types;
 public static class Activities
 {
     [FunctionName("A_SaveTwilioMapping")]
-    public static async Task<string> Run(
-        [ActivityTrigger] string input,
+    public static async Task<string> SaveTwilioMapping(
+        [ActivityTrigger] string orchestrationId,
         [Table(MessageMapping.TableName)] IAsyncCollector<MessageMapping> table)
     {
         var mapping = new MessageMapping()
         {
             PartitionKey = "Sms",
             RowKey = Guid.NewGuid().ToString("N"),
-            OrchestrationId = input
+            OrchestrationId = orchestrationId
         };
 
         await table.AddAsync(mapping);
         return mapping.RowKey;
     }
-    
+
     [FunctionName("A_SendTwilioText")]
-    public static async Task SendMessage(
-        [ActivityTrigger] MessageInput input,
-        [TwilioSms] IAsyncCollector<CreateMessageOptions> message
-        )
+    public static async Task SendTwilioText(
+    [ActivityTrigger] MessageInput input,
+    [TwilioSms] IAsyncCollector<CreateMessageOptions> message)
     {
         var smsText = new CreateMessageOptions(new PhoneNumber(input.Phone))
         {

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 public static class Starters
 {
     [FunctionName("Starter")]
-    public static async Task<HttpResponseMessage> Starter(
+    public static async Task<HttpResponseMessage> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post")]
         HttpRequestMessage req,
         [OrchestrationClient] DurableOrchestrationClient starter,
@@ -22,8 +22,8 @@ public static class Starters
     }
 
     [FunctionName("TwilioHandler")]
-    public static async Task<HttpResponseMessage> TwilioHancler(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "TwilioHandler/{id}")]
+    public static async Task<HttpResponseMessage> TwilioHandler(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route= "TwilioHandler/{id}")]
         HttpRequestMessage req,
         [OrchestrationClient] DurableOrchestrationClient client,
         [Table(MessageMapping.TableName, "Sms", "{id}")] MessageMapping mapping,
@@ -35,7 +35,7 @@ public static class Starters
 
         if (status == "delivered" || status == "failed")
         {
-            await client.RaiseEventAsync(mapping.OrchestrationId, "TwilioWebhook", status);
+            await client.RaiseEventAsync(mapping.OrchestrationId, "TwilioCallback", status);
         }
 
         var response = req.CreateResponse(HttpStatusCode.OK);
